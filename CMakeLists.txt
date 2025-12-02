@@ -400,15 +400,22 @@ if(DEFINED ENV{MKLROOT})
   # all combinations of platform / compiler / threading options.
   target_link_options(${${PROJECT_NAME}_MKL} PRIVATE "LINKER:--no-as-needed")
   target_link_directories(${${PROJECT_NAME}_MKL} PRIVATE $ENV{MKLROOT}/lib)
-  target_link_libraries(
-    ${${PROJECT_NAME}_MKL}
-    PRIVATE m
-            mkl_rt
-            mkl_gnu_thread
-            mkl_core
-            gomp
-            pthread
-            dl)
+  if(WIN32)
+    target_link_libraries(
+      ${${PROJECT_NAME}_MKL}
+      PRIVATE mkl_rt 
+    )
+  else()
+    target_link_libraries(
+      ${${PROJECT_NAME}_MKL}
+      PRIVATE m
+              mkl_rt
+              mkl_gnu_thread
+              mkl_core
+              gomp
+              pthread
+              dl)
+  endif()
 
   # Set some properties
   set_target_properties(
