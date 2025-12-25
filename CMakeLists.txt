@@ -64,6 +64,8 @@ set(CMAKE_C_EXTENSIONS OFF)
 set(CMAKE_CXX_EXTENSIONS OFF)
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
 
+message(STATUS "CMAKE_CURRENT_SOURCE_DIR are ${CMAKE_CURRENT_SOURCE_DIR}")
+
 # Options Shared/Dynamic or Static library?
 option(BUILD_SHARED_LIBS "Build libraries as shared as opposed to static" ON)
 
@@ -528,9 +530,11 @@ install_basic_package_files(
 
 # Add the tests
 if(BUILD_TESTING)
+set(SCS_MATH_LIB $<$<NOT:$<PLATFORM_ID:Windows>>:m>)
+
   add_executable(run_tests_direct test/run_tests.c)
   target_compile_definitions(run_tests_direct PRIVATE ${COMPILER_OPTS})
-  target_link_libraries(run_tests_direct PRIVATE scs::scsdir)
+  target_link_libraries(run_tests_direct PRIVATE scs::scsdir ${SCS_MATH_LIB})
   target_include_directories(
     run_tests_direct
     PRIVATE
@@ -544,7 +548,7 @@ if(BUILD_TESTING)
 
   add_executable(run_tests_indirect test/run_tests.c)
   target_compile_definitions(run_tests_indirect PRIVATE ${COMPILER_OPTS})
-  target_link_libraries(run_tests_indirect PRIVATE scs::scsindir)
+  target_link_libraries(run_tests_indirect PRIVATE scs::scsindir ${SCS_MATH_LIB})
   target_include_directories(
     run_tests_indirect
     PRIVATE
@@ -559,7 +563,7 @@ if(BUILD_TESTING)
   if(DEFINED ENV{MKLROOT})
     add_executable(run_tests_mkl test/run_tests.c)
     target_compile_definitions(run_tests_mkl PRIVATE ${COMPILER_OPTS})
-    target_link_libraries(run_tests_mkl PRIVATE scs::scsmkl)
+    target_link_libraries(run_tests_mkl PRIVATE scs::scsmkl ${SCS_MATH_LIB})
     target_include_directories(
       run_tests_mkl
       PRIVATE
@@ -575,12 +579,16 @@ if(BUILD_TESTING)
   if(USE_CUDSS)
     add_executable(run_tests_cudss test/run_tests.c)
     target_compile_definitions(run_tests_cudss PRIVATE ${COMPILER_OPTS})
-    target_link_libraries(run_tests_cudss PRIVATE scs::scscudss)
+    target_link_libraries(run_tests_cudss PRIVATE scs::scscudss ${SCS_MATH_LIB})
     target_include_directories(
       run_tests_cudss
       PRIVATE
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/test;${CMAKE_CURRENT_SOURCE_DIR}/include;${CMAKE_CURRENT_SOURCE_DIR}/${LINSYS}>"
     )
+    target_compile_definitions(run_tests_cudss PRIVATE
+  SCS_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test/problems"
+)
+
 
     add_test(
       NAME run_tests_cudss

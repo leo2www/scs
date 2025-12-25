@@ -52,3 +52,4 @@ hs21_tiny_qp
 rob_gauss_cov_est
 build/
 *.vscode
+.vs/
