@@ -140,6 +140,10 @@ message(STATUS "OpenMP parallelization is ${USE_OPENMP}")
 option(USE_CUDSS "Compile with cuDSS support" OFF)
 message(STATUS "cuDSS support is ${USE_CUDSS}")
 
+# 在文件开头的 option 区域添加（约第 130 行附近，和其他 option 放一起）
+option(SELF_TEST "Build custom test examples" OFF)
+message(STATUS "Custom test examples: ${SELF_TEST}")
+
 set(COMPILER_OPTS "-DCTRLC")
 set(LAPACK_LINK_LIBRARIES "")
 
@@ -577,17 +581,18 @@ set(SCS_MATH_LIB $<$<NOT:$<PLATFORM_ID:Windows>>:m>)
   endif()
 
   if(USE_CUDSS)
+    # 1. 首先创建 scscudss 库
     add_executable(run_tests_cudss test/run_tests.c)
+    # 2. 添加编译宏定义 (如 -DCTRLC, -DUSE_LAPACK 等)
     target_compile_definitions(run_tests_cudss PRIVATE ${COMPILER_OPTS})
+    # 3. 链接 scs::scscudss 库（这是关键）
     target_link_libraries(run_tests_cudss PRIVATE scs::scscudss ${SCS_MATH_LIB})
+    # 4. 设置头文件搜索路径
     target_include_directories(
       run_tests_cudss
       PRIVATE
         "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/test;${CMAKE_CURRENT_SOURCE_DIR}/include;${CMAKE_CURRENT_SOURCE_DIR}/${LINSYS}>"
     )
-    target_compile_definitions(run_tests_cudss PRIVATE
-  SCS_TEST_DATA_DIR="${CMAKE_CURRENT_SOURCE_DIR}/test/problems"
-)
 
 
     add_test(
@@ -595,5 +600,23 @@ set(SCS_MATH_LIB $<$<NOT:$<PLATFORM_ID:Windows>>:m>)
       COMMAND run_tests_cudss
       WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
   endif()
+
+endif()
+
+# 添加自定义样例
+if(SELF_TEST)
+   message(STATUS "自定义样例位于 ${CMAKE_CURRENT_SOURCE_DIR}/test/simple-test/" )
+   add_executable(simple_test_ctest test/simple-test/simple-test-ctest.c)
+   target_compile_definitions(simple_test_ctest PRIVATE ${COMPILER_OPTS})
+   if(USE_CUDSS)
+     target_link_libraries(simple_test_ctest PRIVATE scs::scscudss ${SCS_MATH_LIB})
+   else()
+     target_link_libraries(simple_test_ctest PRIVATE scs::scsdir ${SCS_MATH_LIB})
+   endif()
+   target_include_directories(
+     simple_test_ctest
+     PRIVATE
+       "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/test;${CMAKE_CURRENT_SOURCE_DIR}/include;${CMAKE_CURRENT_SOURCE_DIR}/${LINSYS}>"
+   )
 
 endif()

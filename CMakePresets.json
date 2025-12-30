@@ -1,4 +1,4 @@
-﻿{
+{
   "version": 3,
   "configurePresets": [
     {
@@ -15,8 +15,10 @@
         "USE_OPENMP": "ON",
         "USE_SPECTRAL_CONES": "ON",
         "USE_CUDSS": "ON",
+        "USE_LAPACK": "ON",
 
-        "BUILD_TESTING": "ON"
+        "BUILD_TESTING": "ON",
+        "SELF_TEST": "ON"
 
       },
       "environment": {
@@ -136,4 +138,4 @@
       "output": { "outputOnFailure": true }
     }
   ]
-}
+} 
