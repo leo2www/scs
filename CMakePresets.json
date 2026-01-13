@@ -37,6 +37,24 @@
       }
     },
     {
+      "name": "linux-rancher-release",
+      "displayName": "Linux Rancher Release",
+      "description": "面向Linux，提供多种cmake选项",
+      "inherits": "linux-rancher",
+      "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Release", // 改为 Release 开启 -O3 优化
+        //-march=native	针对当前 CPU 架构优化
+        //"-DNDEBUG" "禁用" "assert 宏"
+        // -ftree-vectorize	自动向量化
+
+        "CMAKE_C_FLAGS_RELEASE": "-O3 -march=native -DNDEBUG -ftree-vectorize -funroll-loops"
+        //"CMAKE_C_FLAGS_RELEASE": "-O3 -march=native -DNDEBUG  "
+        //"CMAKE_EXE_LINKER_FLAGS_RELEASE": "-flto",  // 启用链接时优化
+        //"CMAKE_INTERPROCEDURAL_OPTIMIZATION": "ON"  // 启用跨过程优化
+
+      }
+    },
+    {
       "name": "linux-debug",
       "displayName": "Linux Debug",
       "description": "面向适用于 Linux 的 Windows 子系统(WSL)或远程系统。",
@@ -126,8 +144,8 @@
       "configurePreset": "linux-rancher"
     },
     {
-      "name": "linux-rancher-install",
-      "configurePreset": "linux-rancher",
+      "name": "linux-rancher-relase",
+      "configurePreset": "linux-rancher-release",
       "targets": [ "install" ]
     }
   ],
